@@ -23,7 +23,7 @@ def detect_careto_OpenCV(imagen):
 	faces = face_classifier.detectMultiScale(img, 1.3, 5)
 	if len(faces) > 1:
 		cv2.putText(imagen, texto, (100,100), cv2.FONT_HERSHEY_TRIPLEX, 1, (127,0,255), 2)
-		dete
+		detect=False
 	 	return imagen,x,y,w,h,detect
 	if faces is ():
 		return imagen,x,y,w,h,detect
@@ -105,149 +105,38 @@ def procesado_ojo(ojo):
 	return apertura
 
 
-'''Funcion que localiza la cara del ususario con Dlib, ademas dibuja un 
-rectangulo en el area de la cara, si hay mas de una persona lo indica''' 
-# def detect_careto_Dlib(imagen):
-# 	texto="Mas de una cara detectada";
-# 	faces=detector(imagen,1)
-# 	if len(faces) > 1:
-# 		cv2.putText(imagen, texto, (100,100), cv2.FONT_HERSHEY_TRIPLEX, 1, (127,0,255), 2)
-# 		return imagen
-# 	if len(faces) == 0:
-# 		return imagen
-
-# 	p=faces[0]
-# 	x=p.left()
-# 	y=p.top()
-# 	w=p.right()-p.left()
-# 	h=p.bottom()-p.top()
-# 	cv2.rectangle(imagen,(x,y) , (x+w,y+h), (127,0,255), 2)
-# 	return imagen
-
-'''Funcion que devuelve matriz numpy con 68 puntos faciales'''
-# def obtener_puntos(imagen):
-# 	faces=detector(imagen,1)
-# 	if len(faces)!=1:
-# 		return "error"
-# 	return np.matrix([[i.x, i.y] for i in predictor(imagen,faces[0]).parts()]) #Transformamos de formato dlib.point a matriz para poder acceder a los datos mas facilmente
-
-# '''Funcion que recorre los 68 puntos faciales y los dibuja en pantalla con su respectivo indice'''
-# def dibujar_puntos(imagen, puntos):
-#     imagen = imagen.copy()
-#     for index, punto in enumerate(puntos):
-#     	if len(puntos)<68:
-#     		break
-#         pos = (punto[0, 0], punto[0, 1])
-#         cv2.putText(imagen, str(index), pos, fontFace=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale=0.4, color=(0, 0, 255))
-#         cv2.circle(imagen, pos, 3, color=(0, 255, 255))
-#     return imagen
-
-# ''' Los ojos corresponden con los puntos del 36 al 47. Esta funcion obtiene una matriz con estos puntos y toma como argumento los 68 puntos faciales'''
-# def obtener_puntos_ojos(puntos):
-# 	puntos_ojos=np.zeros((12,2))
-# 	aux=np.array([36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47])
-# 	if len(puntos)<68:
-# 		return puntos_ojos
-# 	for index,i in enumerate(aux):
-# 		puntos_ojos[index]=puntos[i]
-# 	return puntos_ojos
-
-# '''Esta funcion dibuja los puntos de los ojos (12 Puntos)'''
-# def dibujar_puntos_ojos(imagen, puntos_ojos):
-# 	imagen=imagen.copy()
-# 	for index, punto in enumerate(puntos_ojos):
-# 		if len(puntos)<12:
-# 			break
-# 		pos = (int(punto[0]), int(punto[1]))
-# 		cv2.putText(imagen, str(index), pos, fontFace=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale=0.4, color=(0, 0, 255))
-# 		cv2.circle(imagen, pos, 3, color=(0, 255, 255))
-# 	return imagen
-
-# ''' La boca corresponde con los puntos del 48 al 67. Esta funcion obtiene una matriz con estos puntos y toma como argumento los 68 puntos faciales'''
-# def obtener_puntos_boca(puntos):
-# 	puntos_boca=np.zeros((21,2))
-# 	aux=np.array([48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67])
-# 	if len(puntos)<68:
-# 		return puntos_boca
-# 	for index,i in enumerate(aux):
-# 		puntos_boca[index]=puntos[i]
-# 	return puntos_boca
-
-# '''Esta funcion dibuja los puntos de la boca (20 Puntos)'''
-# def dibujar_puntos_boca(imagen, puntos_boca):
-# 	imagen=imagen.copy()
-# 	for index, punto in enumerate(puntos_boca):
-# 		if len(puntos)<21:
-# 			break
-# 		pos = (int(punto[0]), int(punto[1]))
-# 		cv2.putText(imagen, str(index), pos, fontFace=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale=0.4, color=(0, 0, 255))
-# 		cv2.circle(imagen, pos, 3, color=(0, 255, 255))
-# 	return imagen
-
-# t=time.time()
-# pedrolo=cv2.imread('./images/pedrolo.jpg')
-# pedrolo=cv2.UMat(pedrolo)
-# im,x,y,w,h=detect_careto_OpenCV(pedrolo)
-# pedrolo_crop=cv2.UMat.get(pedrolo)
-# print(np.shape(pedrolo_crop))
-# crop=pedrolo_crop[y:y+w,x:h+x]
-# crop_UMat=cv2.UMat(crop)
-# eyes=detect_eyes_OpenCV(crop_UMat)
-# cv2.imshow('Hola',eyes)
-# elapsed=time.time()-t
-# print(elapsed)
-# cv2.waitKey()
-
-
-##SIN WEBCAM
-
-t=time.time()
-
-imagen=cv2.imread('./images/ojos_entre_HD.jpg')
-pj_cara,x,y,w,h,d=detect_careto_OpenCV(imagen)
-#pj_cara=cv2.UMat.get(pj_cara)
-crop=pj_cara[y:y+w,x:h+x]
-pj_ojos,eye1,eye2,detect_eyes=detect_eyes_OpenCV(crop)
-ex1,ey1,ew1,eh1=eye1
-ex2,ey2,ew2,eh2=eye2
-ojo1=pj_ojos[ey1:ey1+ew1,ex1:ex1+eh1]
-ojo2=pj_ojos[ey2:ey2+ew2,ex2:ex2+eh2]
-apertura=procesado_ojo(ojo2)
-print(apertura)
-
-
 #Imprimir Cara y ojos
-# image_webcam=cv2.VideoCapture(0)
-# apertura=[]
-# while True:
-# 	t=time.time()
-# 	ret,frame =image_webcam.read()
-# 	frame_uMat=cv2.UMat(frame)
-# 	im,x,y,w,h,detect=detect_careto_OpenCV(frame_uMat)
-# 	if detect==False:
-# 		imp=im
-# 	else:
-# 		crop=cv2.UMat.get(im)
-# 		crop=crop[y:y+h,x:x+w]
-# 		imp,eye_1,eye_2,detect_eyes=detect_eyes_OpenCV(crop)
-# 		if detect_eyes==False:
-# 			imp=im
-# 		else:
-# 			ex1,ey1,ew1,eh1=eye_1
-# 			ex2,ey2,ew2,eh2=eye_2
-# 			#ojo1=imp[ey1:ey1+ew1,ex1:ex1+eh1]
-# 			ojo2=imp[ey2:ey2+ew2,ex2:ex2+eh2]
-# 			apertura_temp=procesado_ojo(ojo2)
-# 			print(apertura_temp)
-# 			apertura.append(apertura_temp)
+image_webcam=cv2.VideoCapture(0)
+apertura=[]
+while True:
+	t=time.time()
+	ret,frame =image_webcam.read()
+	frame_uMat=cv2.UMat(frame)
+	im,x,y,w,h,detect=detect_careto_OpenCV(frame_uMat)
+	if detect==False:
+		imp=im
+	else:
+		crop=cv2.UMat.get(im)
+		crop=crop[y:y+h,x:x+w]
+		imp,eye_1,eye_2,detect_eyes=detect_eyes_OpenCV(crop)
+		if detect_eyes==False:
+			imp=im
+		else:
+			ex1,ey1,ew1,eh1=eye_1
+			ex2,ey2,ew2,eh2=eye_2
+			#ojo1=imp[ey1:ey1+ew1,ex1:ex1+eh1]
+			ojo2=imp[ey2:ey2+ew2,ex2:ex2+eh2]
+			apertura_temp=procesado_ojo(ojo2)
+			print(apertura_temp)
+			apertura.append(apertura_temp)
 			
 			
 			
 
 	
-# 	cv2.imshow('Detector de Fatiga',imp)
+	cv2.imshow('Detector de Fatiga',imp)
 
-# 	if cv2.waitKey(1)==13:
-# 		break
+	if cv2.waitKey(1)==13:
+		break
 
-# cv2.destroyAllWindows()
+cv2.destroyAllWindows()
