@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import time
+import time as t
 from matplotlib import pyplot as plt
 #import dlib
 
@@ -20,7 +20,7 @@ def detect_careto_OpenCV(imagen):
 	texto="Mas de una cara detectada";
 	#img=cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY);
 	img=imagen
-	faces = face_classifier.detectMultiScale(img, 1.3, 5)
+	faces = face_classifier.detectMultiScale(img, 1.3, 5,minSize=(100,100),maxSize=(100,100))
 	if len(faces) > 1:
 		cv2.putText(imagen, texto, (100,100), cv2.FONT_HERSHEY_TRIPLEX, 1, (127,0,255), 2)
 		detect=False
@@ -30,7 +30,7 @@ def detect_careto_OpenCV(imagen):
 
 	detect=True
 	x,y,w,h=faces[0,:]
-	cv2.rectangle(imagen,(x,y) , (x+w,y+h), (127,0,255), 2)
+	cv2.rectangle(imagen,(x,y) , (x+w,y+h), (127,0,255), 1)
 	return imagen,x,y,w,h,detect
 
 def detect_eyes_OpenCV(imagen):
@@ -104,39 +104,30 @@ def procesado_ojo(ojo):
 
 	return apertura
 
+start_time=t.time()
+im=cv2.imread('images/ojos_abiertos_HD.jpg',0)
+im_resize=cv2.UMat(cv2.resize(im,(320,180)))
 
-#Imprimir Cara y ojos
-image_webcam=cv2.VideoCapture(0)
-apertura=[]
-while True:
-	t=time.time()
-	ret,frame =image_webcam.read()
-	frame_uMat=cv2.UMat(frame)
-	im,x,y,w,h,detect=detect_careto_OpenCV(frame_uMat)
-	if detect==False:
-		imp=im
-	else:
-		crop=cv2.UMat.get(im)
-		crop=crop[y:y+h,x:x+w]
-		imp,eye_1,eye_2,detect_eyes=detect_eyes_OpenCV(crop)
-		if detect_eyes==False:
-			imp=im
-		else:
-			ex1,ey1,ew1,eh1=eye_1
-			ex2,ey2,ew2,eh2=eye_2
-			#ojo1=imp[ey1:ey1+ew1,ex1:ex1+eh1]
-			ojo2=imp[ey2:ey2+ew2,ex2:ex2+eh2]
-			apertura_temp=procesado_ojo(ojo2)
-			print(apertura_temp)
-			apertura.append(apertura_temp)
-			
-			
-			
+face_UMat,fx,fy,fw,fh,fdetect=detect_careto_OpenCV(im_resize)
+face=cv2.UMat.get(face_UMat)
+cv2.imshow('pedrolo',im_resize)
+face_time=t.time()-start_time
+print('Tiempo ejecucion cara',face_time)
 
-	
-	cv2.imshow('Detector de Fatiga',imp)
+ROI_face=face[fy:fy+fh , fx:fx+fw]
+cv2.imshow('face',ROI_face)
+dimY,dimX=ROI_face.shape
+print('Tamano cara',dimY,dimX)
+ROI_eyes=ROI_face[int(dimX*0.25):int(dimX*0.55),int(dimY*0.1):int(dimY*0.9)]
+ROI_mouth=ROI_face[int(dimX*0.6):int(dimX*0.9),int(dimY*0.2):int(dimY*0.8)]
+# ROI_eyes=ROI_face[int(round(dimX*0.3)):int(round(dimX*0.5)),int(round(dimY*0.1)):int(round(dimY*0.9))]
+# ROI_mouth=ROI_face[int(round(dimX*0.6)):int(round(dimX*0.9)),int(round(dimY*0.2)):int(round(dimY*0.8))]
+cv2.imshow('mouth', ROI_mouth)
+print('Tiempo ejecucion crops',t.time()-start_time)
 
-	if cv2.waitKey(1)==13:
-		break
+eyes,eye1,eye2,detect_eyes=detect_eyes_OpenCV(ROI_eyes)
+cv2.imshow('eyes',eyes)
+print(eye1)
+print('Tiempo ejecucion ojos',t.time()-start_time)
 
-cv2.destroyAllWindows()
+cv2.waitKey(0)
