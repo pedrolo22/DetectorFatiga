@@ -5,8 +5,6 @@ from matplotlib import pyplot as plt
 #import dlib
 
 PREDICTOR_PATH="shape_predictor_68_face_landmarks.dat"
-#predictor = dlib.shape_predictor(PREDICTOR_PATH)
-#detector = dlib.get_frontal_face_detector()
 face_classifier = cv2.CascadeClassifier('Haarcascades/haarcascade_frontalface_alt2.xml')
 face_classifier_LBP = cv2.CascadeClassifier('Haarcascades/lbpcascade_frontalface.xml')
 eye_classifier = cv2.CascadeClassifier('Haarcascades/haarcascade_eye.xml')
@@ -20,7 +18,7 @@ def detect_careto_OpenCV(imagen):
 	texto="Mas de una cara detectada";
 	#img=cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY);
 	img=imagen
-	faces = face_classifier.detectMultiScale(img, 1.3, 5,minSize=(100,100),maxSize=(100,100))
+	faces = face_classifier.detectMultiScale(img, 1.3, 5)
 	if len(faces) > 1:
 		cv2.putText(imagen, texto, (100,100), cv2.FONT_HERSHEY_TRIPLEX, 1, (127,0,255), 2)
 		detect=False
@@ -119,9 +117,7 @@ cv2.imshow('face',ROI_face)
 dimY,dimX=ROI_face.shape
 print('Tamano cara',dimY,dimX)
 ROI_eyes=ROI_face[int(dimX*0.25):int(dimX*0.55),int(dimY*0.1):int(dimY*0.9)]
-ROI_mouth=ROI_face[int(dimX*0.6):int(dimX*0.9),int(dimY*0.2):int(dimY*0.8)]
-# ROI_eyes=ROI_face[int(round(dimX*0.3)):int(round(dimX*0.5)),int(round(dimY*0.1)):int(round(dimY*0.9))]
-# ROI_mouth=ROI_face[int(round(dimX*0.6)):int(round(dimX*0.9)),int(round(dimY*0.2)):int(round(dimY*0.8))]
+ROI_mouth=ROI_face[int(dimX*0.7):int(dimX*0.95),int(dimY*0.2):int(dimY*0.8)]
 cv2.imshow('mouth', ROI_mouth)
 print('Tiempo ejecucion crops',t.time()-start_time)
 
