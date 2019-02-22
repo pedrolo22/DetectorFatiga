@@ -22,7 +22,8 @@ def detect_careto_OpenCV(imagen):
 	if len(faces) > 1:
 		cv2.putText(imagen, texto, (100,100), cv2.FONT_HERSHEY_TRIPLEX, 1, (127,0,255), 2)
 		detect=False
-	 	return imagen,x,y,w,h,detect
+		return imagen,x,y,w,h,detect
+
 	if faces is ():
 		return imagen,x,y,w,h,detect
 
