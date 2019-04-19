@@ -4,6 +4,29 @@ import time as t
 import math
 from matplotlib import pyplot as plt
 
+kernel31=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(31,31))
+kernel32=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(32,32))
+kernel33=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(33,33))
+kernel34=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(34,34))
+kernel35=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(35,35))
+kernel36=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(36,36))
+kernel37=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(37,37))
+kernel38=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(38,38))
+kernel39=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(39,39))
+kernel40=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(40,40))
+kernel7=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
+kernel8=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(8,8))
+kernel9=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
+kernel10=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,10))
+kernel11=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(11,11))
+kernel12=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12))
+kernel13=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(13,13))
+kernel14=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(14,14))
+kernel15=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
+kernel16=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(16,16))
+kernel17=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(17,17))
+
+
 
 PREDICTOR_PATH="shape_predictor_68_face_landmarks.dat"
 face_classifier = cv2.CascadeClassifier('Haarcascades/haarcascade_frontalface_alt2.xml')
@@ -77,18 +100,6 @@ def proy_bin(imagen):
 
 def morf_proc(imagen):
 
-	kernel7=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
-	kernel8=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(8,8))
-	kernel9=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
-	kernel10=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,10))
-	kernel11=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(11,11))
-	kernel12=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12))
-	kernel13=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(13,13))
-	kernel14=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(14,14))
-	kernel15=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
-	kernel16=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(16,16))
-	kernel17=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(17,17))
-
 	img_rgb=cv2.cvtColor(imagen, cv2.COLOR_GRAY2RGB);
 	img_suav=cv2.GaussianBlur(imagen,(3,3),0)
 	img1=cv2.morphologyEx(img_suav, cv2.MORPH_CLOSE, kernel9)
@@ -115,7 +126,7 @@ def morf_proc(imagen):
 	aux=[]
 	for i in distancia[0]:
 	    aux.append(xcol[i])
-	apertura=max(aux)-min(aux) #Valor de apertura vertical del ojo en función de la pupila
+	apertura=max(aux)-min(aux) #Valor de apertura vertical del ojo en funcion de la pupila
 	print('Apertura Ojo',apertura)
 	cv2.drawMarker(img5, (int(coord_x), int(coord_y)), (255,255,255), cv2.MARKER_CROSS,  markerSize = 2)
 
@@ -130,3 +141,34 @@ def morf_proc(imagen):
 
 	return ellipse
 
+def morf_proc_mouth(imagen):
+
+	
+	img_suav=cv2.GaussianBlur(imagen,(3,3),0)
+	img1=cv2.morphologyEx(img_suav, cv2.MORPH_CLOSE, kernel32)
+	img2=cv2.morphologyEx(img1, cv2.MORPH_CLOSE,kernel38)
+	img3=cv2.subtract(img2,img1)
+	umbral1=np.amax(img3)*0.75
+	ret,img_bw=cv2.threshold(img3, umbral1,255, cv2.THRESH_BINARY)
+	img4=cv2.dilate(img_bw,np.ones(5))
+	img5=cv2.subtract(img4,img_bw) #imagen con el contorno umbralizado
+	im_contorno=np.where(img5==255)
+	coord_y=np.sum(im_contorno[0])/(im_contorno[0].shape[0])
+	coord_x=np.sum(im_contorno[1])/(im_contorno[1].shape[0])
+	distancia=np.where(im_contorno[1]==coord_x)
+	xcol=im_contorno[0]
+	aux=[]
+	for i in distancia[0]:
+	    aux.append(xcol[i])
+	apertura=max(aux)-min(aux) #Valor de apertura vertical del ojo en funcion de la pupila
+	print('Apertura Boca',apertura)
+	cv2.drawMarker(img5, (int(coord_x), int(coord_y)), (255,255,255), cv2.MARKER_CROSS,  markerSize = 2)
+
+	cv2.imshow('Apertura1',img1)
+	cv2.imshow('Apertura2',img2)
+	cv2.imshow('1-2',img3)
+	cv2.imshow('Umbralizacion',img_bw)
+	cv2.imshow('Dilatacion',img4)
+	cv2.imshow('Contorno Boca', img5)
+
+	return apertura
