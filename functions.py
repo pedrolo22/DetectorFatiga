@@ -50,14 +50,6 @@ def detect_eyes_OpenCV(imagen):
 	#cv2.rectangle(imagen,(ex2,ey2),(ex2+ew2,ey2+eh2),(0,255,0),1)
 	return imagen,eye1,eye2,detect_eyes
 
-def ellipse_aprox(imagen):
-	img_suav=cv2.GaussianBlur(imagen,(3,3),0)
-	img_equal=cv2.equalizeHist(img_suav)
-	img_bw=cv2.adaptiveThreshold(img_equal, 255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,15,2)
-	contours,hierarchy=cv2.findContours(img_bw,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-	#cv2.drawContours(img_bw,contours,-1,(0,255,0),3)
-	#cv2.ellipse(imagen,(0,255,0),2)
-	cv2.imshow('Ojo binarizado',img_equal)
 
 def proy_bin(imagen):
 	img_suav=cv2.GaussianBlur(imagen,(3,3),0)
@@ -123,18 +115,18 @@ def morf_proc(imagen):
 	aux=[]
 	for i in distancia[0]:
 	    aux.append(xcol[i])
-	apertura=max(aux)-min(aux)
-	print(aux)
+	apertura=max(aux)-min(aux) #Valor de apertura vertical del ojo en función de la pupila
 	print('Apertura Ojo',apertura)
 	cv2.drawMarker(img5, (int(coord_x), int(coord_y)), (255,255,255), cv2.MARKER_CROSS,  markerSize = 2)
 
-	cv2.imshow('Apertura1',img1)
-	cv2.imshow('Apertura2',img2)
-	cv2.imshow('1-2',img3)
-	cv2.imshow('Umbralizacion',img_bw)
-	cv2.imwrite('./capturas/elipse.png',img_rgb)
-	cv2.imwrite('./capturas/contorno_pupila.png',img5)
-	cv2.imshow('Dilatacion',img4)
-	cv2.imshow('Contorno Pupila', img5)
+	# cv2.imshow('Apertura1',img1)
+	# cv2.imshow('Apertura2',img2)
+	# cv2.imshow('1-2',img3)
+	# cv2.imshow('Umbralizacion',img_bw)
+	# cv2.imwrite('./capturas/elipse.png',img_rgb)
+	# cv2.imwrite('./capturas/contorno_pupila.png',img5)
+	# cv2.imshow('Dilatacion',img4)
+	# cv2.imshow('Contorno Pupila', img5)
 
 	return ellipse
+
