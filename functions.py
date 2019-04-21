@@ -4,16 +4,7 @@ import time as t
 import math
 from matplotlib import pyplot as plt
 
-kernel31=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(31,31))
-kernel32=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(32,32))
-kernel33=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(33,33))
-kernel34=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(34,34))
-kernel35=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(35,35))
-kernel36=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(36,36))
-kernel37=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(37,37))
-kernel38=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(38,38))
-kernel39=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(39,39))
-kernel40=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(40,40))
+
 kernel7=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
 kernel8=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(8,8))
 kernel9=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
@@ -25,6 +16,18 @@ kernel14=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(14,14))
 kernel15=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
 kernel16=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(16,16))
 kernel17=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(17,17))
+
+kernel31=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(31,31))
+kernel32=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(32,32))
+kernel33=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(33,33))
+kernel34=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(34,34))
+kernel35=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(35,35))
+kernel36=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(36,36))
+kernel37=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(37,37))
+kernel38=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(38,38))
+kernel39=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(39,39))
+kernel40=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(40,40))
+
 
 
 
@@ -42,7 +45,7 @@ def detect_careto_OpenCV(imagen):
 	texto="Mas de una cara detectada";
 	#img=cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY);
 	img=imagen
-	faces = face_classifier.detectMultiScale(img, 1.3, 5)
+	faces = face_classifier.detectMultiScale(img, scaleFactor=1.1, minNeighbors=3)
 	if len(faces) > 1:
 		cv2.putText(imagen, texto, (100,100), cv2.FONT_HERSHEY_TRIPLEX, 1, (127,0,255), 2)
 		detect=False
@@ -53,7 +56,7 @@ def detect_careto_OpenCV(imagen):
 
 	detect=True
 	x,y,w,h=faces[0,:]
-	cv2.rectangle(imagen,(x,y) , (x+w,y+h), (127,0,255), 1)
+	#cv2.rectangle(imagen,(x,y) , (x+w,y+h), (127,0,255), 3)
 	return imagen,x,y,w,h,detect
 
 def detect_eyes_OpenCV(imagen):
@@ -111,11 +114,11 @@ def morf_proc(imagen):
 	img5=cv2.subtract(img4,img_bw) #imagen con el contorno umbralizado
 
 	#Proceso para aproximar a una elipse
-	contours, hierarchy = cv2.findContours(img_bw, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-	cv2.drawContours(img_bw, contours, -1, (0,255,0), 1)
-	cnt=contours[0]
-	ellipse=cv2.fitEllipse(cnt)	
-	print(ellipse)
+	# contours, hierarchy = cv2.findContours(img_bw, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+	# cv2.drawContours(img_bw, contours, -1, (0,255,0), 1)
+	# cnt=contours[0]
+	# ellipse=cv2.fitEllipse(cnt)	
+	# print(ellipse)
 
 	#Proceso para encontrar el centro de masa del contorno de la pupila
 	im_contorno=np.where(img5==255)
@@ -126,7 +129,10 @@ def morf_proc(imagen):
 	aux=[]
 	for i in distancia[0]:
 	    aux.append(xcol[i])
-	apertura=max(aux)-min(aux) #Valor de apertura vertical del ojo en funcion de la pupila
+	if(len(aux) != 0):
+		apertura=max(aux)-min(aux) #Valor de apertura vertical del ojo en funcion de la pupila
+	else:
+		apertura=0
 	print('Apertura Ojo',apertura)
 	cv2.drawMarker(img5, (int(coord_x), int(coord_y)), (255,255,255), cv2.MARKER_CROSS,  markerSize = 2)
 
@@ -139,7 +145,7 @@ def morf_proc(imagen):
 	# cv2.imshow('Dilatacion',img4)
 	# cv2.imshow('Contorno Pupila', img5)
 
-	return ellipse
+	return apertura
 
 def morf_proc_mouth(imagen):
 
@@ -160,15 +166,18 @@ def morf_proc_mouth(imagen):
 	aux=[]
 	for i in distancia[0]:
 	    aux.append(xcol[i])
-	apertura=max(aux)-min(aux) #Valor de apertura vertical del ojo en funcion de la pupila
+	if(len(aux) != 0):
+		apertura=max(aux)-min(aux) #Valor de apertura vertical de la boca
+	else:
+		apertura=0
 	print('Apertura Boca',apertura)
 	cv2.drawMarker(img5, (int(coord_x), int(coord_y)), (255,255,255), cv2.MARKER_CROSS,  markerSize = 2)
 
-	cv2.imshow('Apertura1',img1)
-	cv2.imshow('Apertura2',img2)
-	cv2.imshow('1-2',img3)
-	cv2.imshow('Umbralizacion',img_bw)
-	cv2.imshow('Dilatacion',img4)
-	cv2.imshow('Contorno Boca', img5)
+	# cv2.imshow('Apertura1',img1)
+	# cv2.imshow('Apertura2',img2)
+	# cv2.imshow('1-2',img3)
+	# cv2.imshow('Umbralizacion',img_bw)
+	# cv2.imshow('Dilatacion',img4)
+	# cv2.imshow('Contorno Boca', img5)
 
 	return apertura
