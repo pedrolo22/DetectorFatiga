@@ -113,7 +113,8 @@ def morf_proc(imagen):
 		img1=cv2.morphologyEx(img_suav, cv2.MORPH_CLOSE, kernel9)
 		img2=cv2.morphologyEx(img1, cv2.MORPH_CLOSE,kernel15)
 		img3=cv2.subtract(img2,img1)
-		umbral1=np.amax(img3)*0.75
+		print(img3)
+		umbral1=np.amax(img3)*0.70
 		ret,img_bw=cv2.threshold(img3, umbral1,255, cv2.THRESH_BINARY)
 		img4=cv2.dilate(img_bw,np.ones(5))
 		img5=cv2.subtract(img4,img_bw) #imagen con el contorno umbralizado
@@ -146,6 +147,10 @@ def morf_proc(imagen):
 		cv2.imshow('1-2',img3)
 		cv2.imshow('Umbralizacion',img_bw)
 		cv2.imwrite('./capturas/elipse.png',img_rgb)
+		cv2.imwrite('./capturas/close1.png',img1)
+		cv2.imwrite('./capturas/close2.png',img2)
+		cv2.imwrite('./capturas/closeresta.png',img3)
+		cv2.imwrite('./capturas/umbralizada.png',img_bw)
 		cv2.imwrite('./capturas/contorno_pupila.png',img5)
 		cv2.imwrite('./capturas/ojo_suav.jpg',img_suav)
 		cv2.imshow('Dilatacion',img4)
