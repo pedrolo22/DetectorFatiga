@@ -4,7 +4,10 @@ import time as t
 import math
 from matplotlib import pyplot as plt
 
-
+kernel1=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(1,1))
+kernel2=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(2,2))
+kernel3=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+kernel4=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(4,4))
 kernel7=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
 kernel8=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(8,8))
 kernel9=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
@@ -113,18 +116,17 @@ def morf_proc(imagen):
 		img1=cv2.morphologyEx(img_suav, cv2.MORPH_CLOSE, kernel9)
 		img2=cv2.morphologyEx(img1, cv2.MORPH_CLOSE,kernel15)
 		img3=cv2.subtract(img2,img1)
-		print(img3)
 		umbral1=np.amax(img3)*0.70
 		ret,img_bw=cv2.threshold(img3, umbral1,255, cv2.THRESH_BINARY)
-		img4=cv2.dilate(img_bw,np.ones(5))
+		img4=cv2.dilate(img_bw,kernel3)
 		img5=cv2.subtract(img4,img_bw) #imagen con el contorno umbralizado
-
+		cv2.imwrite('./capturas/contorno_pupila_1.png',img5)
+		
 		#Proceso para aproximar a una elipse
-		# contours, hierarchy = cv2.findContours(img_bw, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-		# cv2.drawContours(img_bw, contours, -1, (0,255,0), 1)
-		# cnt=contours[0]
-		# ellipse=cv2.fitEllipse(cnt)	
-		# print(ellipse)
+		contours, hierarchy = cv2.findContours(img_bw, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+		cv2.drawContours(img_rgb, contours, -1, (0,255,0), 1)
+		ellipse=cv2.fitEllipse(contours[0])	
+		
 
 		#Proceso para encontrar el centro de masa del contorno de la pupila
 		im_contorno=np.where(img5==255)
@@ -153,10 +155,11 @@ def morf_proc(imagen):
 		cv2.imwrite('./capturas/umbralizada.png',img_bw)
 		cv2.imwrite('./capturas/contorno_pupila.png',img5)
 		cv2.imwrite('./capturas/ojo_suav.jpg',img_suav)
+		cv2.imwrite('./capturas/dilatacion.jpg',img4)
 		cv2.imshow('Dilatacion',img4)
 		cv2.imshow('Contorno Pupila', img5)
 
-	return apertura
+	return ellipse
 
 def morf_proc_mouth(imagen):
 
