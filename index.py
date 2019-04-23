@@ -62,23 +62,28 @@ if detect_eyes==1:
 	img_rgb_eyes=cv2.cvtColor(eyes, cv2.COLOR_GRAY2RGB)
 	cv2.rectangle(img_rgb_eyes,(ex1,ey1),(ex1+ew1,ey1+eh1),(0,255,0),1)
 	cv2.rectangle(img_rgb_eyes,(ex2,ey2),(ex2+ew2,ey2+eh2),(0,255,0),1)
+
+	#Proyeccion binaria
+
+	apertura=fun.proy_bin(ROI_eye2)
 	
 	# Procesamiento morfologico y aproximacion de elipse a pupila
-	ellipse=fun.morf_proc(ROI_eye2)
-	cv2.ellipse(ROI_eye2,tuple(ellipse),(255,255,255),1)
-	center,axis,angle=ellipse
-	a=float(axis[1])
-	b=float(axis[0])
-	excentricidad=math.sqrt(a**2-b**2)/a
-	center=(center[0]+ex2+fx+dimY*0.1-expand_eyes,center[1]+ey2+fy+dimX*0.15-expand_eyes)
-	ellipse=[center,axis,angle]
-	cv2.ellipse(im_rgb_resize,tuple(ellipse),(0,255,0),1)
+
+	# ellipse=fun.morf_proc(ROI_eye2)
+	# cv2.ellipse(ROI_eye2,tuple(ellipse),(255,255,255),1)
+	# center,axis,angle=ellipse
+	# a=float(axis[1])
+	# b=float(axis[0])
+	# excentricidad=math.sqrt(a**2-b**2)/a
+	# center=(center[0]+ex2+fx+dimY*0.1-expand_eyes,center[1]+ey2+fy+dimX*0.15-expand_eyes)
+	# ellipse=[center,axis,angle]
+	# cv2.ellipse(im_rgb_resize,tuple(ellipse),(0,255,0),1)
 
 
-	print('Semieje menor',axis[0])
-	print('Semieje mayor',axis[1])
-	print('Excentricidad', excentricidad)
-	cv2.putText(im_rgb_resize, 'Excentricidad= '+ str(excentricidad), (20, 30), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (0,0,0), 1)
+	# print('Semieje menor',axis[0])
+	# print('Semieje mayor',axis[1])
+	# print('Excentricidad', excentricidad)
+	# cv2.putText(im_rgb_resize, 'Excentricidad= '+ str(excentricidad), (20, 30), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (0,0,0), 1)
 
 	cv2.imwrite('./capturas/im_orig.jpg', im_rgb)
 	cv2.imwrite('./capturas/im_byw.jpg', im)

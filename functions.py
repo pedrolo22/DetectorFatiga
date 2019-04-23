@@ -83,25 +83,31 @@ def detect_eyes_OpenCV(imagen):
 
 def proy_bin(imagen):
 	img_suav=cv2.GaussianBlur(imagen,(3,3),0)
-	img_equal=cv2.equalizeHist(img_suav)
-	proy_ver=np.sum(255-img_equal,0)
-	proy_hor=np.sum(255-img_equal,1)
+	umbral2=50
+	print(umbral2)
+	ret,img_umbr=cv2.threshold(img_suav, umbral2,255, cv2.THRESH_BINARY)
+	proy_ver=np.sum(255-img_umbr,0)
+	proy_hor=np.sum(255-img_umbr,1)
 	index_ver=sum(proy_ver>3500)
 	index_hor=sum(proy_hor>3500)
-	apertura=float(index_hor)/float(index_ver)
+	if(index_hor!=0 and index_ver!=0):
+		apertura=float(index_hor)/float(index_ver)
+	else:
+		apertura=0
 	print(index_ver)
 	print(index_hor)
 	print(apertura)
 
-	plt.subplot(131)
-	plt.plot(proy_hor)
-	plt.title('proy_hor')
-	plt.subplot(132)
+	cv2.imwrite('./capturas/umbr_proy.jpg',img_umbr)
+	#plt.subplot(121)
+	#plt.imshow(img_umbr,cmap='gray')
+	#plt.title('Ojo')
+	plt.subplot(122)
 	plt.plot(proy_ver)
-	plt.title('proy_ver')
-	plt.subplot(133)
-	plt.imshow(img_equal,cmap='gray')
-	plt.title('ojo')
+	plt.title('')
+	#plt.subplot(133)
+	#plt.imshow(img_suav,cmap='gray')
+	#plt.title('ojo')
 	plt.show()
 	return apertura
 
