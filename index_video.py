@@ -9,6 +9,7 @@ import functions as fun
 start_time=t.time()
 cap = cv2.VideoCapture('dataset/9-MaleNoGlasses.avi')
 glob_aper=[]
+glob_aper_med=[]
 frame_num=-1
 
 while(cap.isOpened()):
@@ -67,17 +68,33 @@ while(cap.isOpened()):
     	#Procesamiento para conocer el estado de la boca
     	apertura_boca=fun.morf_proc_mouth(ROI_mouth)
     else:
-    	cv2.putText(frame, 'No se detecta ninguna cara', (100,100), cv2.FONT_HERSHEY_TRIPLEX, 1, (127,0,255), 2)
+        cv2.putText(frame, 'No se detecta ninguna cara', (100,100), cv2.FONT_HERSHEY_TRIPLEX, 1, (127,0,255), 2)
+        apertura_boca=0
+        apertura_ojo=0
 
 
-	time_now=t.time()-start_time
-	end=[apertura_ojo,apertura_boca,time_now]
-	glob_aper=glob_aper.append(end)
-	print(apertura_ojo,apertura_boca)
-	cv2.imshow('Video',im_rgb_resize)
+    time_now=t.time()
+    end=apertura_ojo
+    glob_aper.append(end)
+    if (len(glob_aper_med)==0):
+        glob_aper_med.append(apertura_ojo)
+        med=0
+    else:
+        med=float(sum(glob_aper))/float(len(glob_aper))
+        glob_aper_med.append(med)
+
+    #print(apertura_ojo,apertura_boca)
+    print(med,sum(glob_aper_med),len(glob_aper_med))
+    cv2.imshow('Video',im_rgb_resize)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
-    	plt.plot(end[0])
+        plt.plot(glob_aper)
+        plt.plot(glob_aper_med,'r')
+        plt.ylabel('Apertura del ojo en pixeles')
+        plt.xlabel('Frames')
+        plt.ylim(top=15)
+        print(glob_aper_med)
+        plt.show()
         break
 
 cap.release()
