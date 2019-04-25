@@ -7,8 +7,9 @@ import functions as fun
 #import dlib
 
 start_time=t.time()
-im_rgb=cv2.imread('images/ojos_abiertos_HD.jpg')
+im_rgb=cv2.imread('images/bostezo3.png')
 im=cv2.cvtColor(im_rgb,cv2.COLOR_RGB2GRAY)
+
 y,x=im.shape
 if ((float(x)/float(y))==(float(4)/float(3))):
 	im_rgb_resize=cv2.resize(im_rgb,(600,450))
@@ -19,6 +20,7 @@ if((float(x)/float(y))==(float(16)/float(9))):
 else:
 	im_rgb_resize=im_rgb
 	im_resize=cv2.UMat(im)
+
 
 face_UMat,fx,fy,fw,fh,fdetect=fun.detect_careto_OpenCV(im_resize)
 face=cv2.UMat.get(face_UMat)
@@ -107,6 +109,8 @@ else:
 #Procesamiento para conocer el estado de la boca
 cv2.imshow('mouth', ROI_mouth)
 print(ROI_mouth.shape)
+im_mouth,mouth,detect_mouth=fun.detect_mouth_OpenCV(im)
+cv2.imshow('mouth rectangle', im_mouth)
 apertura_boca=fun.morf_proc_mouth(ROI_mouth)
 
 

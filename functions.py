@@ -31,13 +31,23 @@ kernel38=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(38,38))
 kernel39=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(39,39))
 kernel40=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(40,40))
 
-
+kernel61=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(61,61))
+kernel62=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(62,62))
+kernel63=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(63,63))
+kernel64=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(64,64))
+kernel65=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(65,65))
+kernel66=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(66,66))
+kernel67=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(67,67))
+kernel68=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(68,68))
+kernel69=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(69,69))
+kernel70=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(70,60))
 
 
 PREDICTOR_PATH="shape_predictor_68_face_landmarks.dat"
 face_classifier = cv2.CascadeClassifier('Haarcascades/haarcascade_frontalface_alt2.xml')
 face_classifier_LBP = cv2.CascadeClassifier('Haarcascades/lbpcascade_frontalface.xml')
 eye_classifier = cv2.CascadeClassifier('Haarcascades/haarcascade_eye.xml')
+mouth_classifier = cv2.CascadeClassifier('Haarcascades/mouth.xml')
 cv2.ocl.setUseOpenCL(True)
 
 '''Funcion que localiza la cara del ususario con OpenCV (haarcascade_frontalface_default, 
@@ -80,6 +90,21 @@ def detect_eyes_OpenCV(imagen):
 	#cv2.rectangle(imagen,(ex2,ey2),(ex2+ew2,ey2+eh2),(0,255,0),1)
 	return imagen,eye1,eye2,detect_eyes
 
+def detect_mouth_OpenCV(imagen):
+	
+	
+	mouth=mouth_classifier.detectMultiScale(imagen, scaleFactor=1.1,minNeighbors=3)
+	imagen=cv2.cvtColor(imagen,cv2.COLOR_GRAY2BGR)
+	print('BOCA:', mouth)
+	detect_mouth=True
+	if(len(mouth) == 0):
+		detect_mouth=False
+	else:
+		mx,my,mw,mh=mouth[0]
+		cv2.rectangle(imagen,(mx,my),(mx+mh,my+mw),(0,0,255),2)
+		cv2.imwrite('capturas/mouth_rectangle.jpg',imagen)
+	return imagen,mouth,detect_mouth
+
 
 def proy_bin(imagen):
 	img_suav=cv2.GaussianBlur(imagen,(3,3),0)
@@ -87,9 +112,13 @@ def proy_bin(imagen):
 	print(umbral2)
 	ret,img_umbr=cv2.threshold(img_suav, umbral2,255, cv2.THRESH_BINARY)
 	proy_ver=np.sum(255-img_umbr,0)
+	proy_ver_norm=proy_ver.astype(float)/float(np.max(proy_ver))
 	proy_hor=np.sum(255-img_umbr,1)
-	index_ver=sum(proy_ver>3500)
-	index_hor=sum(proy_hor>3500)
+	proy_hor_norm=proy_hor.astype(float)/float(np.max(proy_hor))
+	umbral_ver=0.4
+	umbral_hor=0.4
+	index_ver=sum(proy_ver_norm>umbral_ver)
+	index_hor=sum(proy_hor_norm>umbral_hor)
 	if(index_hor!=0 and index_ver!=0):
 		apertura=float(index_hor)/float(index_ver)
 	else:
@@ -103,7 +132,7 @@ def proy_bin(imagen):
 	#plt.imshow(img_umbr,cmap='gray')
 	#plt.title('Ojo')
 	plt.subplot(122)
-	plt.plot(proy_ver)
+	plt.plot(proy_ver_norm)
 	plt.title('')
 	#plt.subplot(133)
 	#plt.imshow(img_suav,cmap='gray')
@@ -171,10 +200,10 @@ def morf_proc_mouth(imagen):
 
 
 	img_suav=cv2.GaussianBlur(imagen,(3,3),0)
-	img1=cv2.morphologyEx(img_suav, cv2.MORPH_CLOSE, kernel32)
-	img2=cv2.morphologyEx(img1, cv2.MORPH_CLOSE,kernel38)
+	img1=cv2.morphologyEx(img_suav, cv2.MORPH_CLOSE, kernel40)
+	img2=cv2.morphologyEx(img1, cv2.MORPH_CLOSE,kernel70)
 	img3=cv2.subtract(img2,img1)
-	umbral1=np.amax(img3)*0.75
+	umbral1=np.amax(img3)*0.5
 	ret,img_bw=cv2.threshold(img3, umbral1,255, cv2.THRESH_BINARY)
 	img4=cv2.dilate(img_bw,np.ones(5))
 	img5=cv2.subtract(img4,img_bw) #imagen con el contorno umbralizado
@@ -193,11 +222,18 @@ def morf_proc_mouth(imagen):
 	print('Apertura Boca',apertura)
 	cv2.drawMarker(img5, (int(coord_x), int(coord_y)), (255,255,255), cv2.MARKER_CROSS,  markerSize = 2)
 
-	# cv2.imshow('Apertura1',img1)
-	# cv2.imshow('Apertura2',img2)
-	# cv2.imshow('1-2',img3)
-	# cv2.imshow('Umbralizacion',img_bw)
-	# cv2.imshow('Dilatacion',img4)
-	# cv2.imshow('Contorno Boca', img5)
+	cv2.imshow('Apertura1',img1)
+	cv2.imshow('Apertura2',img2)
+	cv2.imshow('1-2',img3)
+	cv2.imshow('Umbralizacion',img_bw)
+	cv2.imwrite('./capturas/close1.png',img1)
+	cv2.imwrite('./capturas/close2.png',img2)
+	cv2.imwrite('./capturas/closeresta.png',img3)
+	cv2.imwrite('./capturas/umbralizada.png',img_bw)
+	cv2.imwrite('./capturas/contorno_pupila.png',img5)
+	cv2.imwrite('./capturas/ojo_suav.jpg',img_suav)
+	cv2.imwrite('./capturas/dilatacion.jpg',img4)
+	cv2.imshow('Dilatacion',img4)
+	cv2.imshow('Contorno Pupila', img5)
 
 	return apertura
