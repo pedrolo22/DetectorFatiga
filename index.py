@@ -7,7 +7,7 @@ import functions as fun
 #import dlib
 
 start_time=t.time()
-im_rgb=cv2.imread('images/bostezo3.png')
+im_rgb=cv2.imread('images/bostezo4.png')
 im=cv2.cvtColor(im_rgb,cv2.COLOR_RGB2GRAY)
 
 y,x=im.shape
@@ -57,7 +57,7 @@ if detect_eyes==1:
 	
 	ex1,ey1,ew1,eh1=eye1
 	ex2,ey2,ew2,eh2=eye2
-	expand_eyes=5
+	expand_eyes=-5
 	ROI_eye1=eyes[(ey1-expand_eyes):(ey1+eh1+expand_eyes) ,(ex1-expand_eyes):(ex1+ew1+expand_eyes)]
 	ROI_eye2=eyes[(ey2-expand_eyes):(ey2+eh2+expand_eyes) ,(ex2-expand_eyes):(ex2+ew2+expand_eyes)]
 
@@ -67,7 +67,7 @@ if detect_eyes==1:
 
 	#Proyeccion binaria
 
-	apertura=fun.proy_bin(ROI_eye2)
+	apertura=fun.morf_proc(ROI_eye2)
 	
 	# Procesamiento morfologico y aproximacion de elipse a pupila
 

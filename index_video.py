@@ -7,18 +7,27 @@ import functions as fun
 #import dlib
 
 start_time=t.time()
-cap = cv2.VideoCapture('dataset/Video16.wmv')
+cap = cv2.VideoCapture('dataset/9-MaleNoGlasses.avi')
 
 while(cap.isOpened()):
     ret, frame = cap.read()
-    im_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    im_resize_noUmat=cv2.resize(im_gray,(360,360))
-    cv2.imwrite('dataset/T001/captura.png',im_resize_noUmat)
-    im_resize=cv2.UMat(cv2.resize(im_gray,(360,360)))
-
+    cv2.imwrite('dataset/T001/captura.png',frame)
+    im_rgb=frame
+    im=cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY)
+    y,x=im.shape
+    if ((float(x)/float(y))==(float(4)/float(3))):
+        im_rgb_resize=cv2.resize(im_rgb,(640,480))
+        im_resize=cv2.UMat(cv2.resize(im,(640,480)))
+    if((float(x)/float(y))==(float(16)/float(9))):
+        im_rgb_resize=cv2.resize(im_rgb,(640,360))
+        im_resize=cv2.UMat(cv2.resize(im,(640,360)))
+    else:
+        im_rgb_resize=im_rgb
+        im_resize=cv2.UMat(im)
+   
     face_UMat,fx,fy,fw,fh,fdetect=fun.detect_careto_OpenCV(im_resize)
     if (fdetect==1):
-    	cv2.rectangle(im_resize_noUmat,(fx,fy) , (fx+fw,fy+fh), (127,0,255), 1)
+    	cv2.rectangle(im_rgb_resize,(fx,fy) , (fx+fw,fy+fh), (127,0,255), 1)
     	face=cv2.UMat.get(face_UMat)
     	ROI_face=face[fy:fy+fh , fx:fx+fw]
     	dimY,dimX=ROI_face.shape
@@ -27,16 +36,20 @@ while(cap.isOpened()):
     	eyes,eye1,eye2,detect_eyes=fun.detect_eyes_OpenCV(ROI_eyes)
 
     	if detect_eyes==1:
-    		ex1,ey1,ew1,eh1=eye1
-    		ex2,ey2,ew2,eh2=eye2
-    		expand_eyes=5
-    		ROI_eye1=eyes[(ey1-expand_eyes):(ey1+eh1+expand_eyes) ,(ex1-expand_eyes):(ex1+ew1+expand_eyes)]
-    		ROI_eye2=eyes[(ey2-expand_eyes):(ey2+eh2+expand_eyes) ,(ex2-expand_eyes):(ex2+ew2+expand_eyes)]
-    		cv2.rectangle(im_resize_noUmat,(ex1,ey1),(ex1+ew1,ey1+eh1),(0,255,0),1)
-    		cv2.rectangle(im_resize_noUmat,(ex2,ey2),(ex2+ew2,ey2+eh2),(0,255,0),1)
+            ex1,ey1,ew1,eh1=eye1
+            ex2,ey2,ew2,eh2=eye2
+            expand_eyes=-5
+            ROI_eye1=eyes[(ey1-expand_eyes):(ey1+eh1+expand_eyes) ,(ex1-expand_eyes):(ex1+ew1+expand_eyes)]
+            ROI_eye2=eyes[(ey2-expand_eyes):(ey2+eh2+expand_eyes) ,(ex2-expand_eyes):(ex2+ew2+expand_eyes)]
+            ex1=ex1+fx+int(dimY*0.1)-expand_eyes
+            ey1=ey1+fy+int(dimX*0.25)-expand_eyes
+            ex2=ex2+fx+int(dimY*0.1)-expand_eyes
+            ey2=ey2+fy+int(dimX*0.25)-expand_eyes
+            cv2.rectangle(im_rgb_resize,(ex1,ey1),(ex1+ew1,ey1+eh1),(0,255,0),1)
+            cv2.rectangle(im_rgb_resize,(ex2,ey2),(ex2+ew2,ey2+eh2),(0,255,0),1)
 
     		# Procesamiento morfologico y aproximacion de elipse a pupila
-    		apertura_ojo=fun.morf_proc(ROI_eye1)
+            apertura_ojo=fun.morf_proc(ROI_eye2)
     		# center,axis,angle=ellipse
     		# a=float(axis[1])
     		# b=float(axis[0])
@@ -54,7 +67,8 @@ while(cap.isOpened()):
     	cv2.putText(frame, 'No se detecta ninguna cara', (100,100), cv2.FONT_HERSHEY_TRIPLEX, 1, (127,0,255), 2)
 
 	
-    cv2.imshow('Video',im_resize_noUmat)
+    print(apertura_ojo,apertura_boca)
+    cv2.imshow('Video',im_rgb_resize)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

@@ -74,7 +74,7 @@ def detect_careto_OpenCV(imagen):
 
 def detect_eyes_OpenCV(imagen):
 	
-	#imagen=cv2.equalizeHist(imagen)
+	imagen=cv2.equalizeHist(imagen)
 	eyes = eye_classifier.detectMultiScale(imagen, scaleFactor=1.1, minNeighbors=3)
 	detect_eyes=True
 	eye1=0
@@ -109,7 +109,6 @@ def detect_mouth_OpenCV(imagen):
 def proy_bin(imagen):
 	img_suav=cv2.GaussianBlur(imagen,(3,3),0)
 	umbral2=50
-	print(umbral2)
 	ret,img_umbr=cv2.threshold(img_suav, umbral2,255, cv2.THRESH_BINARY)
 	proy_ver=np.sum(255-img_umbr,0)
 	proy_ver_norm=proy_ver.astype(float)/float(np.max(proy_ver))
@@ -123,21 +122,22 @@ def proy_bin(imagen):
 		apertura=float(index_hor)/float(index_ver)
 	else:
 		apertura=0
-	print(index_ver)
-	print(index_hor)
-	print(apertura)
+	
+	#print(index_ver)
+	#print(index_hor)
+	#print(apertura)
 
-	cv2.imwrite('./capturas/umbr_proy.jpg',img_umbr)
+	#cv2.imwrite('./capturas/umbr_proy.jpg',img_umbr)
 	#plt.subplot(121)
 	#plt.imshow(img_umbr,cmap='gray')
 	#plt.title('Ojo')
-	plt.subplot(122)
-	plt.plot(proy_ver_norm)
-	plt.title('')
+	#plt.subplot(122)
+	#plt.plot(proy_ver_norm)
+	#plt.title('')
 	#plt.subplot(133)
 	#plt.imshow(img_suav,cmap='gray')
 	#plt.title('ojo')
-	plt.show()
+	#plt.show()
 	return apertura
 
 def morf_proc(imagen):
@@ -151,23 +151,23 @@ def morf_proc(imagen):
 		img1=cv2.morphologyEx(img_suav, cv2.MORPH_CLOSE, kernel9)
 		img2=cv2.morphologyEx(img1, cv2.MORPH_CLOSE,kernel15)
 		img3=cv2.subtract(img2,img1)
-		umbral1=np.amax(img3)*0.70
+		umbral1=np.amax(img3)*0.7
 		ret,img_bw=cv2.threshold(img3, umbral1,255, cv2.THRESH_BINARY)
 		img4=cv2.dilate(img_bw,kernel3)
 		img5=cv2.subtract(img4,img_bw) #imagen con el contorno umbralizado
 		cv2.imwrite('./capturas/contorno_pupila_1.png',img5)
 		
 		#Proceso para aproximar a una elipse
-		contours, hierarchy = cv2.findContours(img_bw, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-		cv2.drawContours(img_rgb, contours, -1, (0,255,0), 1)
-		ellipse=cv2.fitEllipse(contours[0])	
+		# contours, hierarchy = cv2.findContours(img_bw, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+		# cv2.drawContours(img_rgb, contours, -1, (0,255,0), 1)
+		# ellipse=cv2.fitEllipse(contours[0])	
 		
 
 		#Proceso para encontrar el centro de masa del contorno de la pupila
 		im_contorno=np.where(img5==255)
-		coord_y=np.sum(im_contorno[0])/(im_contorno[0].shape[0])
-		coord_x=np.sum(im_contorno[1])/(im_contorno[1].shape[0])
-		distancia=np.where(im_contorno[1]==coord_x)
+		coord_y=int(np.sum(im_contorno[0])/(im_contorno[0].shape[0]))
+		coord_x=int(np.sum(im_contorno[1])/(im_contorno[1].shape[0]))
+		distancia=np.where(im_contorno[1]==coord_x) #Devuelve indices donde se cumple la condicion
 		xcol=im_contorno[0]
 		aux=[]
 		for i in distancia[0]:
@@ -176,31 +176,33 @@ def morf_proc(imagen):
 			apertura=max(aux)-min(aux) #Valor de apertura vertical del ojo en funcion de la pupila
 		else:
 			apertura=0
-		print('Apertura Ojo',apertura)
+		
+
+		# print('Apertura Ojo',apertura)
 		cv2.drawMarker(img5, (int(coord_x), int(coord_y)), (255,255,255), cv2.MARKER_CROSS,  markerSize = 2)
 
-		cv2.imshow('Apertura1',img1)
-		cv2.imshow('Apertura2',img2)
-		cv2.imshow('1-2',img3)
-		cv2.imshow('Umbralizacion',img_bw)
-		cv2.imwrite('./capturas/elipse.png',img_rgb)
-		cv2.imwrite('./capturas/close1.png',img1)
-		cv2.imwrite('./capturas/close2.png',img2)
-		cv2.imwrite('./capturas/closeresta.png',img3)
-		cv2.imwrite('./capturas/umbralizada.png',img_bw)
-		cv2.imwrite('./capturas/contorno_pupila.png',img5)
-		cv2.imwrite('./capturas/ojo_suav.jpg',img_suav)
-		cv2.imwrite('./capturas/dilatacion.jpg',img4)
-		cv2.imshow('Dilatacion',img4)
-		cv2.imshow('Contorno Pupila', img5)
+		# cv2.imshow('Apertura1',img1)
+		# cv2.imshow('Apertura2',img2)
+		# cv2.imshow('1-2',img3)
+		# cv2.imshow('Umbralizacion',img_bw)
+		cv2.imwrite('./capturas/morf_proc/elipse.png',img_rgb)
+		cv2.imwrite('./capturas/morf_proc/close1.png',img1)
+		cv2.imwrite('./capturas/morf_proc/close2.png',img2)
+		cv2.imwrite('./capturas/morf_proc/closeresta.png',img3)
+		cv2.imwrite('./capturas/morf_proc/umbralizada.png',img_bw)
+		cv2.imwrite('./capturas/morf_proc/contorno_pupila.png',img5)
+		cv2.imwrite('./capturas/morf_proc/ojo_suav.jpg',img_suav)
+		cv2.imwrite('./capturas/morf_proc/dilatacion.jpg',img4)
+		# cv2.imshow('Dilatacion',img4)
+		# cv2.imshow('Contorno Pupila', img5)
 
-	return ellipse
+	return apertura
 
 def morf_proc_mouth(imagen):
 
-
+	imagen=cv2.equalizeHist(imagen)
 	img_suav=cv2.GaussianBlur(imagen,(3,3),0)
-	img1=cv2.morphologyEx(img_suav, cv2.MORPH_CLOSE, kernel40)
+	img1=cv2.morphologyEx(img_suav, cv2.MORPH_CLOSE, kernel31)
 	img2=cv2.morphologyEx(img1, cv2.MORPH_CLOSE,kernel70)
 	img3=cv2.subtract(img2,img1)
 	umbral1=np.amax(img3)*0.5
@@ -208,8 +210,8 @@ def morf_proc_mouth(imagen):
 	img4=cv2.dilate(img_bw,np.ones(5))
 	img5=cv2.subtract(img4,img_bw) #imagen con el contorno umbralizado
 	im_contorno=np.where(img5==255)
-	coord_y=np.sum(im_contorno[0])/(im_contorno[0].shape[0])
-	coord_x=np.sum(im_contorno[1])/(im_contorno[1].shape[0])
+	coord_y=int(np.sum(im_contorno[0])/(im_contorno[0].shape[0]))
+	coord_x=int(np.sum(im_contorno[1])/(im_contorno[1].shape[0]))
 	distancia=np.where(im_contorno[1]==coord_x)
 	xcol=im_contorno[0]
 	aux=[]
@@ -219,21 +221,24 @@ def morf_proc_mouth(imagen):
 		apertura=max(aux)-min(aux) #Valor de apertura vertical de la boca
 	else:
 		apertura=0
-	print('Apertura Boca',apertura)
-	cv2.drawMarker(img5, (int(coord_x), int(coord_y)), (255,255,255), cv2.MARKER_CROSS,  markerSize = 2)
 
-	cv2.imshow('Apertura1',img1)
-	cv2.imshow('Apertura2',img2)
-	cv2.imshow('1-2',img3)
-	cv2.imshow('Umbralizacion',img_bw)
-	cv2.imwrite('./capturas/close1.png',img1)
-	cv2.imwrite('./capturas/close2.png',img2)
-	cv2.imwrite('./capturas/closeresta.png',img3)
-	cv2.imwrite('./capturas/umbralizada.png',img_bw)
-	cv2.imwrite('./capturas/contorno_pupila.png',img5)
-	cv2.imwrite('./capturas/ojo_suav.jpg',img_suav)
-	cv2.imwrite('./capturas/dilatacion.jpg',img4)
-	cv2.imshow('Dilatacion',img4)
-	cv2.imshow('Contorno Pupila', img5)
+	
+
+	# print('Apertura Boca',apertura)
+	# cv2.drawMarker(img5, (int(coord_x), int(coord_y)), (255,255,255), cv2.MARKER_CROSS,  markerSize = 2)
+
+	# cv2.imshow('Apertura1',img1)
+	# cv2.imshow('Apertura2',img2)
+	# cv2.imshow('1-2',img3)
+	# cv2.imshow('Umbralizacion',img_bw)
+	# cv2.imwrite('./capturas/close1.png',img1)
+	# cv2.imwrite('./capturas/close2.png',img2)
+	# cv2.imwrite('./capturas/closeresta.png',img3)
+	# cv2.imwrite('./capturas/umbralizada.png',img_bw)
+	# cv2.imwrite('./capturas/contorno_pupila.png',img5)
+	# cv2.imwrite('./capturas/ojo_suav.jpg',img_suav)
+	# cv2.imwrite('./capturas/dilatacion.jpg',img4)
+	# cv2.imshow('Dilatacion',img4)
+	# cv2.imshow('Contorno Pupila', img5)
 
 	return apertura
