@@ -8,9 +8,12 @@ import functions as fun
 
 start_time=t.time()
 cap = cv2.VideoCapture('dataset/9-MaleNoGlasses.avi')
+glob_aper=[]
+frame_num=-1
 
 while(cap.isOpened()):
     ret, frame = cap.read()
+    frame_num=frame_num+1
     cv2.imwrite('dataset/T001/captura.png',frame)
     im_rgb=frame
     im=cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY)
@@ -66,11 +69,15 @@ while(cap.isOpened()):
     else:
     	cv2.putText(frame, 'No se detecta ninguna cara', (100,100), cv2.FONT_HERSHEY_TRIPLEX, 1, (127,0,255), 2)
 
-	
-    print(apertura_ojo,apertura_boca)
-    cv2.imshow('Video',im_rgb_resize)
+
+	time_now=t.time()-start_time
+	end=[apertura_ojo,apertura_boca,time_now]
+	glob_aper=glob_aper.append(end)
+	print(apertura_ojo,apertura_boca)
+	cv2.imshow('Video',im_rgb_resize)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
+    	plt.plot(end[0])
         break
 
 cap.release()
